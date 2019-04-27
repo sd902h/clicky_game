@@ -23,6 +23,21 @@ class App extends Component {
     console.log(newClickedIds, "new clicked Id");
   };
 
+  shuffleCards(friends) {
+    var i = friends.length,
+      j = 0,
+      temp;
+
+    while (i--) {
+      j = Math.floor(Math.random() * (i + 1));
+
+      temp = friends[i];
+      friends[i] = friends[j];
+      friends[j] = temp;
+    }
+    return friends;
+  }
+
   OnCardClick = id => {
     console.log("This clickedId = " + id);
     let gameOver = false;
@@ -33,7 +48,8 @@ class App extends Component {
         gameOver = true;
         this.setState(state => ({
           score: 0,
-          clickedIds: []
+          clickedIds: [],
+          friends: this.shuffleCards(friends)
         }));
       }
     });
