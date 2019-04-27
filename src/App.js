@@ -1,44 +1,15 @@
 import React, { Component } from "react";
-// import FriendCard from "./components/FriendCard";
-// import Wrapper from "./components/Wrapper";
-import Image from "./components/Image";
+import FriendCard from "./components/FriendCard";
+import Wrapper from "./components/Wrapper";
+import Title from "./components/Title";
 import friends from "./friends.json";
 
 class App extends Component {
+  // Setting this.state.friends to the friends json array
   state = {
     friends,
     score: 0,
     clickedIds: []
-  };
-
-  OnCardClick = id => {
-    console.log("This clickedId = " + id);
-    let gameOver = false;
-    console.log("Previously clickedIds = " + this.state.clickedIds);
-    this.state.friends.forEach(friend => {
-      this.state.clickedIds.forEach(clickedId => {
-        if (friend.id === clickedId) {
-          console.log("YOU'VE CLICKED ON THIS BEFORE!");
-          gameOver = true;
-          this.setState(state => ({
-            score: 0,
-            clickedIds: []
-          }));
-        }
-      });
-    });
-
-    if (!gameOver) {
-      console.log("NEW CLICK!");
-      this.saveClickedId(id);
-      this.setState(state => ({ score: state.score + 1 }));
-    }
-
-    console.log("STATUS:");
-    console.log("Current Score = " + this.state.score);
-    this.state.clickedIds.forEach(clickedId => {
-      console.log("Current CLICKED IDS = " + clickedId);
-    });
   };
 
   increaseScore = id => {
@@ -46,29 +17,65 @@ class App extends Component {
   };
 
   saveClickedId = id => {
-    this.state.clickedIds.push(id);
+    var newClickedIds = this.state.clickedIds;
+    newClickedIds.push(id);
+    this.setState(state => ({ clickedIds: newClickedIds }));
+    console.log(newClickedIds, "new clicked Id");
+  };
+
+  OnCardClick = id => {
+    console.log("This clickedId = " + id);
+    let gameOver = false;
+    console.log("Previously clickedIds = " + this.state.clickedIds);
+    this.state.clickedIds.forEach(clickedId => {
+      if (id === clickedId) {
+        console.log("YOU'VE CLICKED ON THIS BEFORE!");
+        gameOver = true;
+        this.setState(state => ({
+          score: 0,
+          clickedIds: []
+        }));
+      }
+    });
+
+    if (!gameOver) {
+      this.saveClickedId(id);
+      this.setState(state => ({ score: state.score + 1 }));
+    }
+    console.log("Current Score = " + this.state.score);
+    this.state.clickedIds.forEach(clickedId => {
+      console.log("Current CLICKED IDS = " + clickedId);
+    });
   };
 
   removeFriend = id => {
+    // Filter this.state.friends for friends with an id not equal to the id being removed
     const friends = this.state.friends.filter(friend => friend.id !== id);
+    // Set this.state.friends equal to the new friends array
     this.setState({ friends });
   };
 
+  // Map over this.state.friends and render a FriendCard component for each friend object
   render() {
-    const renderImage = friends.map(friend => (
-      <Image
-        key={friend.id}
-        name={friend.name}
-        link={friend.image}
-        score={this.increaseScore}
-        cardClicked={this.OnCardClick}
-      />
-    ));
     return (
-      <div>
-        {this.state.score}
-        {renderImage}
-      </div>
+      <Wrapper>
+        <Title>
+          Friends List <div>{this.state.score}</div>
+        </Title>
+        {this.state.friends.map(friend => (
+          <FriendCard
+            removeFriend={this.removeFriend}
+            id={friend.id}
+            key={friend.id}
+            name={friend.name}
+            image={friend.image}
+            occupation={friend.occupation}
+            location={friend.location}
+            newScore={this.increaseScore}
+            cardClicked={this.OnCardClick}
+          />
+        ))}
+      </Wrapper>
     );
   }
 }
