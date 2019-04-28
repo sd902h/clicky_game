@@ -9,11 +9,18 @@ class App extends Component {
   state = {
     friends,
     score: 0,
+    highestScore: 0,
     clickedIds: []
   };
 
   increaseScore = id => {
     this.setState(state => ({ score: state.score + 1 }));
+  };
+
+  saveHighestScore = id => {
+    var newHighScore = this.state.score;
+    if (newHighScore > this.state.highestScore)
+      this.setState(state => ({ highestScore: newHighScore }));
   };
 
   saveClickedId = id => {
@@ -40,12 +47,13 @@ class App extends Component {
 
   OnCardClick = id => {
     console.log("This clickedId = " + id);
-    let gameOver = false;
     console.log("Previously clickedIds = " + this.state.clickedIds);
+    let gameOver = false;
     this.state.clickedIds.forEach(clickedId => {
       if (id === clickedId) {
         console.log("YOU'VE CLICKED ON THIS BEFORE!");
         gameOver = true;
+        this.saveHighestScore(id);
         this.setState(state => ({
           score: 0,
           clickedIds: [],
@@ -56,7 +64,10 @@ class App extends Component {
 
     if (!gameOver) {
       this.saveClickedId(id);
-      this.setState(state => ({ score: state.score + 1 }));
+      this.setState(state => ({
+        friends: this.shuffleCards(friends),
+        score: state.score + 1
+      }));
     }
     console.log("Current Score = " + this.state.score);
     this.state.clickedIds.forEach(clickedId => {
@@ -64,29 +75,21 @@ class App extends Component {
     });
   };
 
-  removeFriend = id => {
-    // Filter this.state.friends for friends with an id not equal to the id being removed
-    const friends = this.state.friends.filter(friend => friend.id !== id);
-    // Set this.state.friends equal to the new friends array
-    this.setState({ friends });
-  };
-
   // Map over this.state.friends and render a FriendCard component for each friend object
   render() {
     return (
       <Wrapper>
         <Title>
-          Friends List <div>{this.state.score}</div>
+          Clicky Game
+          <div>Score: {this.state.score}</div>
+          <div>Highest Score: {this.state.highestScore}</div>
         </Title>
         {this.state.friends.map(friend => (
           <FriendCard
-            removeFriend={this.removeFriend}
             id={friend.id}
             key={friend.id}
             name={friend.name}
             image={friend.image}
-            occupation={friend.occupation}
-            location={friend.location}
             newScore={this.increaseScore}
             cardClicked={this.OnCardClick}
           />
